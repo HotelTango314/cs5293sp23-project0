@@ -1,4 +1,12 @@
 LIST OF COLLABORATORS
-1.
-2.
-3.
+StackOverflow | https://stackoverflow.com/questions/37042152/python-3-5-1-urllib-has-no-attribute-request#:~:text=If%20nothing%20above%20worked%20for%20you%2C%20try%20renaming,error%20AttributeError%3A%20module%20%27urllib%27%20has%20no%20attribute%20%27request%27 | helped me understand URLLIB function better for implementing in getpdf()
+
+pypdf | https://pypi.org/project/pypdf/ | Helped me learn more about how to use pypdf
+
+StackOverflow | https://stackoverflow.com/questions/38678377/python-3-parse-pdf-from-web | helped me figure out that I needed to turn the object returned by URLLIB into an io.BytesIO object so that PDF reader could actually work with the object.
+
+StackOverflow | https://stackoverflow.com/questions/15008758/parsing-boolean-values-with-argparse | Helped me figure out how to configure the options for argparse so that I could easily implement the changes needed to run the program on a local file so I don't get myself blocked by Norman PD
+
+StackOverflow | https://stackoverflow.com/questions/1663807/how-do-i-iterate-through-two-lists-in-parallel, https://stackoverflow.com/questions/19641579/python-convert-tuple-to-string, https://stackoverflow.com/questions/1185524/how-do-i-trim-whitespace | learned more about python iterator tools so that I could properly combine the regex results.
+
+Regular Expressions 101 | https://regex101.com/ | I used their little tool to debug my REGEX

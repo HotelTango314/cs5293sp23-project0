@@ -10,6 +10,11 @@ def main(url,flag):
         data = incidents.getpdf(url)
         pdf_string = incidents.extractpdf(data)
     parsed_data = incidents.parsepdf(pdf_string)
+    incidents.database(parsed_data)
+    result = incidents.digest()
+    for x in result:
+        print(x[0],' | ',x[1])
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

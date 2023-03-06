@@ -13,18 +13,10 @@ def getpdf(url):
     #print("getpdf works")
     return data
 
-def json_dict(date,no):
-    #json_dict = {"date":date,"incident_no":no,"location":loc,"nature":nat,"incident_ori":ori}
-    json_dict = {"date":date,"incident_no":no}
-    return json_dict
-
 def extractpdflocal(data):
     """use to pull local copy of pdf incident summary"""
     reader = PdfReader(data)
     return reader
-    #for p in reader.pages:
-        #print(p.extract_text())
-
 
 def extractpdf(data):
     """use when pulling live copy of pdf incident summary direct from normanPD"""
@@ -32,40 +24,53 @@ def extractpdf(data):
     processed_data = io.BytesIO(data)
     reader = PdfReader(processed_data)
     return reader
-    json_incidents = {'incidents':[]}
-    #key_list = ['date', 'incident_no', 'location', 'nature', 'incident_ori']
-    
-    #re_list = [re_date, re_incident_no, re_location, re_nature, re_incident_ori] 
-    #for p in reader.pages:
-        #print(p.extract_text())
-
-    #print(reader.pages[25].extract_text()[0:300])
-    #print(len(reader.pages))
-    #print(reader)
+  
+def jt(x):
+    return ''.join(x).strip()
 
 def parsepdf(data):
-    json_incidents = {'incidents':[]}
+    #json_incidents = {'incidents':[]}
+    parsed_data = []
     for p in data.pages:
         page = p.extract_text()
         re_date = re.findall(r'[12]\/[1-3]\d\/202[0-3] \d\d?:\d\d',page)
         re_no = re.findall(r'202[0-3]-\d{8}',page)
-        #print(page)
-        for x,y in zip(re_date, re_no):
-            print(x,' | ',y)
-            #json_incidents['incidents'].append(json_dict(re_date[x],re_no[x]))
-    #json_object = json.dumps(json_incidents,indent = 4)
-    #print(json_object)
-    #print('re_date:',len(re_date))
-    #print(re_date))
+        re_loc = re.findall(r'(?<=[\d]{4}\-[\d]{8})[A-Z0-9 \/\n;\-\.\']*[A-Z02-9](?= [^N]..[^h])',page)
+        re_nat = re.findall(r'(?<=[A-Z\d] )(MVA )?(911 )?([A-Z][a-z]+.*)(?= [EO\d])',page)
+        re_ori = re.findall(r'(?<=[A-Za-z] )EMSSTAT|(OK0)?14\d*(?=\n|$)',page)
+        for x,y,z,a,b in zip(re_date, re_no, re_loc, re_nat, re_ori):
+            parsed_data.append([x,y,jt(z),jt(a),jt(b)])
+    return parsed_data
 
-def database():
-    pass
+def database(parsed_data):
+    conn = sqlite3.connect('norman.db')
+    curs = conn.cursor()
+    curs.execute("DROP TABLE IF EXISTS INCIDENTS")
+    curs.execute( """
+    CREATE TABLE INCIDENTS (
+    incident_time TEXT
+    ,incident_number TEXT
+    ,incident_location TEXT
+    ,nature TEXT
+    ,incident_ori TEXT
+    );
+    """)
+    for x in parsed_data:
+        t = (x[0],x[1],x[2],x[3],x[4])
+        curs.execute("INSERT INTO INCIDENTS VALUES (?,?,?,?,?)",t)
+        conn.commit()
+    conn.close()
 
-def insertdata(db, incidents):
-    pass
-
-def incident_digets():
-    pass
-
-def checker():
-    print("the test works")
+def digest():
+    conn = sqlite3.connect('norman.db')
+    curs = conn.cursor()
+    select_all = "SELECT incident_time, incident_location FROM INCIDENTS;"
+    count_nat = "SELECT nature,COUNT(nature) FROM INCIDENTS GROUP BY nature ORDER BY COUNT(nature) DESC, nature;"
+    rows = curs.execute(count_nat).fetchall()
+    result = []
+    for row in rows:
+        result.append([row[0],row[1]])
+        #summing results in right column to facilitate testing
+        #sum += int(row[1])
+    conn.close()
+    return result
