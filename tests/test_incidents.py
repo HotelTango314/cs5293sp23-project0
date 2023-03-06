@@ -4,12 +4,16 @@ import sqlite3
 
 def test_getpdf(url='https://www.normanok.gov/sites/default/files/documents/2023-02/2023-02-27_daily_incident_summary.pdf'):
     tester = incidents.getpdf(url)
-    print(tester[0:8])
+    #print(tester[0:8])
     assert tester[0:8] == b'%PDF-1.5'
+
+def test_extractpdf(url = 'https://www.normanok.gov/sites/default/files/documents/2023-02/2023-02-27_daily_incident_summary.pdf'):
+    tester = incidents.getpdf(url)
+    assert incidents.extractpdf(tester).pdf_header == '%PDF-1.5'
 
 def test_extractpdflocal(filename = 'docs/feb27_incidents.pdf'):
     tester = incidents.extractpdflocal(filename)
-    print(tester.pdf_header)
+    #print(tester.pdf_header)
     assert tester.pdf_header == '%PDF-1.5'
 
 def test_jt(x = [' ',' ','h','e','l','l','o',' ',' ']):
